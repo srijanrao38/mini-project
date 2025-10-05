@@ -1,0 +1,11 @@
+{% extends 'food_analyzer/base.html' %}
+{% block content %}
+<div class="text-center py-20">
+    <h1 class="text-5xl font-extrabold text-gray-900">Welcome to <span class="text-emerald-600">NutriVision AI</span></h1>
+    <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">Your intelligent partner for personalized diet planning and nutrition tracking. Log your meals with a photo and get an adaptive plan designed just for you.</p>
+    <div class="mt-8 flex justify-center space-x-4">
+        <a href="{% url 'register' %}" class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700">Get Started</a>
+        <a href="{% url 'login' %}" class="px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-emerald-700 bg-white hover:bg-gray-50">Login</a>
+    </div>
+</div>
+{% endblock %}

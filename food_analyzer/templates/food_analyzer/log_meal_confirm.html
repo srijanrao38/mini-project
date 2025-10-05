@@ -1,0 +1,112 @@
+{% extends 'food_analyzer/base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10">
+    <div class="bg-white p-8 rounded-lg shadow-lg">
+        
+        {% if nutrition %}
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Is this correct?</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="text-center mb-6">
+                <p class="text-lg">Our AI thinks this is:</p>
+                <input type="text" id="food-name-input" name="food_name" value="{{ nutrition.name }}" class="mt-2 text-center text-xl font-bold text-emerald-600 border border-gray-300 rounded-md p-2 w-full max-w-sm mx-auto">
+            </div>
+            
+            <div id="nutrition-facts-container" class="my-6 p-4 bg-gray-100 rounded-lg">
+                <h3 class="font-bold text-lg text-center">Nutrition Facts</h3>
+                <p id="serving-text" class="text-gray-600 text-center">(Per {{ nutrition.serving_qty }} {{ nutrition.serving_unit }})</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-center">
+                    <div>
+                        <p id="calories-display" class="font-bold text-xl">{{ nutrition.calories|floatformat:0 }}</p>
+                        <p class="text-sm text-gray-500">Calories</p>
+                    </div>
+                    <div>
+                        <p id="protein-display" class="font-bold text-xl">{{ nutrition.protein_g|floatformat:0 }}g</p>
+                        <p class="text-sm text-gray-500">Protein</p>
+                    </div>
+                    <div>
+                        <p id="carbs-display" class="font-bold text-xl">{{ nutrition.carbs_g|floatformat:0 }}g</p>
+                        <p class="text-sm text-gray-500">Carbs</p>
+                    </div>
+                    <div>
+                        <p id="fat-display" class="font-bold text-xl">{{ nutrition.fat_g|floatformat:0 }}g</p>
+                        <p class="text-sm text-gray-500">Fat</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-center space-x-4">
+                <button type="submit" class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700">Log this Meal</button>
+                <a href="{% url 'log_meal' %}" class="px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Cancel</a>
+            </div>
+        </form>
+
+        {% else %}
+            {% endif %}
+
+    </div>
+</div>
+
+<script>
+    const foodInput = document.getElementById('food-name-input');
+    const caloriesDisplay = document.getElementById('calories-display');
+    const proteinDisplay = document.getElementById('protein-display');
+    const carbsDisplay = document.getElementById('carbs-display');
+    const fatDisplay = document.getElementById('fat-display');
+    const servingText = document.getElementById('serving-text');
+    const nutritionContainer = document.getElementById('nutrition-facts-container');
+
+    let debounceTimer;
+
+    // This function runs when the user types in the box
+    foodInput.addEventListener('input', () => {
+        // Clear the previous timer
+        clearTimeout(debounceTimer);
+        
+        // Set a new timer to run after 500ms
+        // This stops us from sending a request on every single keystroke
+        debounceTimer = setTimeout(() => {
+            const foodName = foodInput.value;
+            if (foodName) {
+                updateNutrition(foodName);
+            }
+        }, 500); // 500ms delay
+    });
+
+    // This function fetches the new data from our Django API
+    async function updateNutrition(foodName) {
+        nutritionContainer.style.opacity = '0.5'; // Visually show that we're loading
+        
+        try {
+            // Call the new API endpoint we created
+            const response = await fetch(`{% url 'api_get_nutrition' %}?food=${encodeURIComponent(foodName)}`);
+            
+            if (!response.ok) {
+                throw new Error('Nutrition data not found');
+            }
+            
+            const data = await response.json();
+            
+            // Update the HTML with the new data from the server
+            caloriesDisplay.textContent = Math.round(data.calories);
+            proteinDisplay.textContent = `${Math.round(data.protein_g)}g`;
+            carbsDisplay.textContent = `${Math.round(data.carbs_g)}g`;
+            fatDisplay.textContent = `${Math.round(data.fat_g)}g`;
+            servingText.textContent = `(Per ${data.serving_qty} ${data.serving_unit})`;
+
+        } catch (error) {
+            console.error('Failed to fetch nutrition data:', error);
+            // If there's an error (e.g., food not found), show 'N/A'
+            caloriesDisplay.textContent = 'N/A';
+            proteinDisplay.textContent = 'N/A';
+            carbsDisplay.textContent = 'N/A';
+            fatDisplay.textContent = 'N/A';
+            servingText.textContent = `(Could not find data for "${foodName}")`;
+        } finally {
+            nutritionContainer.style.opacity = '1'; // Restore full opacity
+        }
+    }
+</script>
+{% endblock %}

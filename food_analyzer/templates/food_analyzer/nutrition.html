@@ -1,0 +1,19 @@
+{% extends 'food_analyzer/base.html' %}
+{% block content %}
+<div class="text-center">
+    <h1 class="display-5">Nutrition Facts</h1>
+    <p class="lead">For <strong class="text-success">{{ data.food_name }}</strong> ({{ data.serving_size }})</p>
+</div>
+<div class="row justify-content-center mt-4"><div class="col-md-8">
+    <div class="card shadow-lg border-0">
+        <ul class="list-group list-group-flush">
+            {% for nutrient, value in data.nutrients.items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center fs-5">
+                <strong>{{ nutrient }}</strong><span class="badge bg-primary rounded-pill">{{ value }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="text-center mt-4"><a href="{% url 'upload_view' %}" class="btn btn-primary btn-lg">Analyze Another Food</a></div>
+</div></div>
+{% endblock %}

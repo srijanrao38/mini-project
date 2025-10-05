@@ -1,0 +1,8 @@
+{% extends 'food_analyzer/base.html' %}
+{% block content %}
+<div class="text-center">
+    <h1 class="display-5 text-danger">An Error Occurred</h1>
+    <div class="alert alert-danger mt-4"><p>{{ message }}</p></div>
+    <div class="mt-4"><a href="{% url 'upload_view' %}" class="btn btn-primary btn-lg">Try Again</a></div>
+</div>
+{% endblock %}

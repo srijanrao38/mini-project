@@ -1,0 +1,16 @@
+{% extends 'food_analyzer/base.html' %}
+{% block content %}
+<div class="text-center">
+    <h1 class="display-4">Analyze Your Food</h1>
+    <p class="lead text-muted">Upload an image to identify the food and get its nutritional information.</p>
+</div>
+<div class="row justify-content-center mt-5"><div class="col-md-6">
+    <div class="card shadow-lg border-0"><div class="card-body p-5">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">{{ form.image.label_tag }}{{ form.image }}</div>
+            <div class="d-grid"><button type="submit" class="btn btn-primary btn-lg">Analyze Image</button></div>
+        </form>
+    </div></div>
+</div></div>
+{% endblock %}
